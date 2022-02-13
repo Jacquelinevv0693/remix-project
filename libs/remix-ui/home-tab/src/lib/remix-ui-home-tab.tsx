@@ -80,6 +80,7 @@ export const RemixUiHomeTab = (props: RemixUiHomeTabProps) => {
 
   const remiAudioEl = useRef(null)
   const inputValue = useRef(null)
+  const rightPanel = useRef(null)
 
   useEffect(() => {
     plugin.call('theme', 'currentTheme').then((theme) => {
@@ -97,7 +98,7 @@ export const RemixUiHomeTab = (props: RemixUiHomeTabProps) => {
     window.addEventListener('click', (event) => {
       const target = event.target as Element
       const id = target.id
-      if (id !== 'remixIDEHomeTwitterbtn' && id !== 'remixIDEHomeMediumbtn') {
+      if (id !== 'remixIDEHomeTwitterbtn' && id !== 'remixIDEHomeMediumbtn' && !rightPanel.current.contains(event.target)) {
         // todo check event.target
         setState(prevState => { return { ...prevState, showMediaPanel: 'none' } })
       }
@@ -125,6 +126,7 @@ export const RemixUiHomeTab = (props: RemixUiHomeTabProps) => {
   }
 
   const createNewFile = async () => {
+    plugin.verticalIcons.select('filePanel')
     await plugin.call('filePanel', 'createNewFile')
   }
 
@@ -171,7 +173,6 @@ export const RemixUiHomeTab = (props: RemixUiHomeTabProps) => {
     _paq.push(['trackEvent', 'pluginManager', 'userActivate', 'sourcify'])
   }
   const startPluginManager = async () => {
-    await plugin.appManager.activatePlugin('pluginManager')
     plugin.verticalIcons.select('pluginManager')
   }
 
@@ -261,21 +262,22 @@ export const RemixUiHomeTab = (props: RemixUiHomeTabProps) => {
                 <h4>File</h4>
                 <p className="mb-1">
                   <i className="mr-2 far fa-file"></i>
-                  <span className="ml-1 mb-1 remixui_home_text" onClick={() => createNewFile()}>New File</span>
+                  <label className="ml-1 mb-1 remixui_home_text" onClick={() => createNewFile()}>New File</label>
                 </p>
                 <p className="mb-1">
                   <i className="mr-2 far fa-file-alt"></i>
-                  <span className="ml-1 remixui_home_labelIt remixui_home_bigLabelSize remixui_home_text">
+                  <label className="ml-1 remixui_home_labelIt remixui_home_bigLabelSize remixui_home_text" htmlFor="openFileInput">
                     Open Files
-                    <input title="open file" type="file" onChange={(event) => {
-                      event.stopPropagation()
-                      uploadFile(event.target)
-                    }} multiple />
-                  </span>
+                  </label>
+                  <input title="open file" type="file" id="openFileInput" onChange={(event) => {
+                    event.stopPropagation()
+                    plugin.verticalIcons.select('filePanel')
+                    uploadFile(event.target)
+                  }} multiple />
                 </p>
                 <p className="mb-1">
                   <i className="mr-1 far fa-hdd"></i>
-                  <span className="ml-1 remixui_home_text" onClick={() => connectToLocalhost()}>Connect to Localhost</span>
+                  <label className="ml-1 remixui_home_text" onClick={() => connectToLocalhost()}>Connect to Localhost</label>
                 </p>
                 <p className="mt-3 mb-0"><label>LOAD FROM:</label></p>
                 <div className="btn-group">
@@ -301,7 +303,7 @@ export const RemixUiHomeTab = (props: RemixUiHomeTabProps) => {
                 </p>
                 <p className="mb-1">
                   <i className="mr-2 fab fa-ethereum remixui_home_image"></i>
-                  <span className="remixui_home_text" onClick={() => switchToPreviousVersion()}>Old experience</span>
+                  <label className="remixui_home_text" onClick={() => switchToPreviousVersion()}>Old experience</label>
                 </p>
               </div>
             </div>
@@ -332,9 +334,14 @@ export const RemixUiHomeTab = (props: RemixUiHomeTabProps) => {
               }}
             ></button>
           </div>
-          <div className="mr-3 d-flex bg-light remixui_home_panels" style={ { visibility: state.showMediaPanel === 'none' ? 'hidden' : 'visible' } } id="remixIDEMediaPanels">
+          <div
+            className="mr-3 d-flex bg-light remixui_home_panels"
+            style={ { visibility: state.showMediaPanel === 'none' ? 'hidden' : 'visible' } }
+            id="remixIDEMediaPanels"
+            ref={rightPanel}
+          >
             <div id="remixIDE_MediumBlock" className="p-2 mx-1 mt-3 mb-0 remixui_home_remixHomeMedia" style={ { maxHeight: maxHeight } }>
-              <div id="medium-widget" className="px-3 remixui_home_media" hidden={state.showMediaPanel !== 'medium'} style={ { maxHeight: elHeight } }>
+              <div id="medium-widget" className="px-3 remixui_home_media" hidden={state.showMediaPanel !== 'medium'} style={ { maxHeight: '10000px' } }>
                 <div
                   id="retainable-rss-embed"
                   data-rss="https://medium.com/feed/remix-ide"
@@ -351,7 +358,7 @@ export const RemixUiHomeTab = (props: RemixUiHomeTabProps) => {
             <div id="remixIDE_TwitterBlock" className="p-2 mx-1 mt-3 mb-0 remixui_home_remixHomeMedia" hidden={state.showMediaPanel !== 'twitter'} style={ { maxHeight: maxHeight, marginRight: '28px' } } >
               <div className="remixui_home_media" style={ { minHeight: elHeight } } >
                 <a className="twitter-timeline"
-                  data-width="330"
+                  data-width="375"
                   data-theme={ state.themeQuality.name }
                   data-chrome="nofooter noheader transparent"
                   data-tweet-limit="18"
